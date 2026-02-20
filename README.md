@@ -257,4 +257,16 @@ Each `run_*.sh` script handles: dataset prep → parallel training → evaluatio
 
 For a detailed description of the method, mathematical derivation, and benchmark results, please refer to our paper:
 
-**Capturing long-range interactions with a reciprocal-space neural network** *Ruijie Guo, Hongyu Yu, Liangliang Hong, Shiyou Chen, Xingao Gong, and Hongjun Xiang* **arXiv**: [2211.16684](https://arxiv.org/abs/2211.16684)
+[Capturing long-range interactions with a reciprocal-space neural network](https://arxiv.org/abs/2211.16684)
+
+If you use this code in your research, please cite:
+
+```bibtex
+@article{guo2022capturing,
+  title   = {Capturing long-range interactions with a reciprocal-space neural network},
+  author  = {Guo, Ruijie and Yu, Hongyu and Hong, Liangliang and Chen, Shiyou and Gong, Xingao and Xiang, Hongjun},
+  journal = {arXiv preprint arXiv:2211.16684},
+  year    = {2022},
+  url     = {https://arxiv.org/abs/2211.16684}
+}
+```
