@@ -1,0 +1,195 @@
+# -------------------- general --------------------
+root: results/reciprocal/NaCl
+run_name: NaCl(1-step)
+seed: 817324
+dataset_seed: 687132
+append: true
+default_dtype: float64
+model_dtype: float64
+allow_tf32: false
+start_stage: 3   # 3-step training starting stage
+
+# -------------------- network --------------------
+model_builders:
+ - allegro.model.ReciprocalNN_Allegro_charge_equilibrium
+ # the typical model builders from `nequip` can still be used:
+# - PerSpeciesRescale
+# - ForceOutput
+ - StressForceOutput
+# - RescaleEnergyEtc
+
+# extra model input fields
+model_input_fields:
+  atomic_charges: 1x0e
+  total_charge: 1x0e
+  loss_weight: 1x0e
+
+# cutoffs
+# Allegro radial cutoff in length units
+r_max: 6.0
+# reciprocal space cutoff in 1/length units
+k_max: 7.0
+#acc_factor: 4.0
+eta: 0.6
+avg_num_neighbors: auto
+
+# radial basis
+BesselBasis_trainable: true
+PolynomialCutoff_p: 6
+
+# symmetry
+l_max: 2
+parity: o3_full
+
+# Allegro layers:
+num_layers: 2
+env_embed_multiplicity: 8
+embed_initial_edge: true
+
+# ScalarMLP settings
+two_body_latent_mlp_latent_dimensions: [32, 64]
+two_body_latent_mlp_nonlinearity: silu
+two_body_latent_mlp_initialization: uniform
+
+latent_mlp_latent_dimensions: [64]
+latent_mlp_nonlinearity: silu
+latent_mlp_initialization: uniform
+latent_resnet: true
+
+env_embed_mlp_latent_dimensions: []
+env_embed_mlp_nonlinearity: null
+env_embed_mlp_initialization: uniform
+
+# hidden layer dimensions of the per-edge charge ScalarMLP
+charge_mlp_latent_dimensions: [32, 64]
+# nonlinearity used in the per-edge charge ScalarMLP
+charge_mlp_nonlinearity: silu
+# weight initialzation in the per-edge charge ScalarMLP
+charge_mlp_initialization: uniform
+
+# hidden layer dimensions of the per-edge energy ScalarMLP
+edge_short_eng_mlp_latent_dimensions: [32]
+# nonlinearity used in the per-edge energy ScalarMLP
+edge_short_eng_mlp_nonlinearity: silu
+# weight initialzation in the per-edge energy ScalarMLP
+edge_short_eng_mlp_initialization: uniform
+
+# ReciprocalNN parameters
+FCN_hidden: 32
+FCN_layers: 4
+
+# -------------------- data --------------------
+dataset: ase
+# path to data set file
+dataset_file_name: ./datasets/NaCl/NaCl/NaCl.xyz
+ase_args:
+  format: extxyz
+dataloader_num_workers: 1
+dataloader_prefetch_factor: 2
+
+# A mapping of chemical species to type indexes is necessary if the dataset is provided with atomic numbers instead of type indexes.
+chemical_symbol_to_type:
+  Na: 0
+  Cl: 1
+
+# Extra inputs from dataset.
+include_keys:
+  - atomic_charges
+  - total_charge
+  - loss_weight
+
+# logging
+wandb: true
+wandb_project: reciprocal_nacl
+verbose: info
+log_batch_freq: 10
+
+# -------------------- training --------------------
+n_train: 5000
+n_val: 1000
+batch_size: 128
+max_epochs: 10000
+learning_rate: 0.001
+train_val_split: random
+shuffle: true
+metrics_key: validation_loss
+
+# E(3) tolerance
+e3_tolerance: !!float 1e-7
+
+# validation
+validation_batch_size: 128
+
+# use an exponential moving average of the weights
+use_ema: true
+ema_decay: 0.99
+ema_use_num_updates: true
+
+# loss function
+loss_coeffs:
+  total_energy:
+    - 10.
+    - PerAtomMSELoss
+  forces: 1.
+  total_charge: 1.
+  stress: 1.
+
+# optimizer
+optimizer_name: Adam
+#optimizer_kwargs:
+#  amsgrad: false
+#  betas:
+#  - 0.9
+#  - 0.999
+#  capturable: false
+#  eps: 1.0e-08
+#  foreach: null
+#  maximize: false
+#  weight_decay: 0
+optimizer_kwargs:
+  amsgrad: false
+  betas:
+  - 0.9
+  - 0.999
+  eps: 1.0e-08
+  maximize: false
+  weight_decay: 0
+
+# output metrics
+metrics_components:
+  - - total_energy
+    - mae
+  - - total_energy
+    - rmse
+  - - total_energy
+    - mae
+    - PerAtom: True                        # if true, energy is normalized by the number of atoms
+  - - forces                               # key
+    - mae                                  # "rmse" or "mae"
+  - - forces
+    - rmse
+  - - total_charge
+    - mae
+  - - total_charge
+    - rmse
+  - - stress
+    - mae
+  - - stress
+    - rmse
+
+# lr scheduler, drop lr if no improvement for 50 epochs
+lr_scheduler_name: ReduceLROnPlateau
+lr_scheduler_patience: 50
+lr_scheduler_factor: 0.5
+
+early_stopping_lower_bounds:
+  LR:  # correspond to 3 stages
+    - 0.001
+    - 0.001
+    - 1.0e-5
+
+early_stopping_upper_bounds:
+  cumulative_wall: 60480000.
+
+early_stopping_patiences:
+  validation_loss: 1000
