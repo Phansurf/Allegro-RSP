@@ -1,4 +1,4 @@
-# Allegro-RSP
+# Allegro + Reciprocal-Space Potential (RSP)
 
 ## Introduction
 This repository implements the **Reciprocal Space Neural Network (RSNN)** framework, designed to capture long-range interactions (such as Coulombic and van der Waals forces) in machine learning interatomic potentials. By transforming spatial information into reciprocal space, the model overcomes the cutoff limitations of standard local descriptors.
