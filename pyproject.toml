@@ -5,40 +5,18 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "allegro-rsp"
 version = "0.1.0"
-description = "Allegro-RSP: Allegro with Reciprocal Space Potential for long-range interactions in machine learning interatomic potentials."
+description = "Allegro + Reciprocal Space Potential (RSD) extension for NequIP and Allegro."
 readme = "README.md"
 requires-python = ">=3.7"
 authors = [
     {name = "The Allegro-RSP Developers"},
 ]
-
-dependencies = [
-    "numpy",
-    "ase",
-    "tqdm",
-    "e3nn>=0.4.4,<0.6.0",
-    "pyyaml",
-    "torch-runstats>=0.2.0",
-    "torch-ema>=0.3.0",
-    "opt_einsum_fx==0.1.4",
-    "wandb",
-    "packaging",
-    "importlib-metadata; python_version<'3.10'",
-    "scipy",
-    "pymatgen",
-]
-
-[project.scripts]
-nequip-train     = "nequip.scripts.train:main"
-nequip-evaluate  = "nequip.scripts.evaluate:main"
-nequip-benchmark = "nequip.scripts.benchmark:main"
-nequip-deploy    = "nequip.scripts.deploy:main"
-
-[project.entry-points."nequip.extension"]
-init_always = "allegro"
+# nequip and allegro must be pre-installed before running pip install -e .
+dependencies = []
 
 [tool.setuptools.packages.find]
-include = ["nequip", "nequip.*", "allegro", "allegro.*"]
+# No Python packages to install — this project only patches nequip and allegro.
+include = []
 
 [tool.ruff]
 line-length = 88

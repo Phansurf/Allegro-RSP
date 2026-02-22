@@ -1,9 +1,10 @@
 # Allegro + Reciprocal-Space Potential (RSP)
 
 ## Introduction
+
 This repository implements the **Reciprocal Space Neural Network (RSNN)** framework, designed to capture long-range interactions (such as Coulombic and van der Waals forces) in machine learning interatomic potentials. By transforming spatial information into reciprocal space, the model overcomes the cutoff limitations of standard local descriptors.
 
-The project integrates RSNN with state-of-the-art architectures and includes significant enhancements to the training pipeline:
+Allegro-RSP is a **lightweight extension** for the [NequIP](https://github.com/mir-group/nequip) and [Allegro](https://github.com/mir-group/allegro) packages. It patches the installed packages with only the files that differ from upstream, adding:
 
 - **Allegro + RSP**: Integration of the Reciprocal Space Potential (RSP) with the **Allegro** model. Validated on **NaCl** (Coulomb + van der Waals) and **HfO$_2$** (pristine & defective) datasets.
 - **Enhanced NequIP Framework**: A modified `nequip` core supporting **loss-weighted training** and a robust **3-step training strategy** (Local $\rightarrow$ Long-range $\rightarrow$ Joint Fine-tuning) for improved convergence.
@@ -44,13 +45,25 @@ wget https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_scatter-2.0.9-cp39-cp39
 pip install torch_scatter-2.0.9-cp39-cp39-linux_x86_64.whl
 ```
 
-**3. Install Allegro-RSP**
+**3. Install nequip and allegro**
+
+```bash
+pip install -e path/to/nequip/
+pip install -e path/to/allegro/
+```
+
+**4. Install Allegro-RSP**
 
 ```bash
 pip install -e .
 ```
 
-This installs both the bundled `nequip` and `allegro` packages together with all remaining dependencies declared in `pyproject.toml`. No separate `pip install nequip` or `pip install allegro` is needed.
+This applies the RSP patches to the installed `nequip` and `allegro` packages via `setup.py develop`. The `nequip-train`, `nequip-evaluate`, `nequip-benchmark`, and `nequip-deploy` CLI commands are provided by the installed `nequip` package.
+
+To re-apply patches after editing files in `allegro/` or `nequip/`:
+```bash
+python setup.py develop
+```
 
 ### Without Internet
 
@@ -66,7 +79,7 @@ pip download absl-py==0.10.0 adjustText ase==3.23.0 e3nn==0.5.6 grpcio markdown=
 wget https://files.pythonhosted.org/packages/ec/f1/923d8dcf2d54d165bb8eb1f3782ba2aa58a85d7dfd8c43d0173dde836f76/calorine-3.2.tar.gz
 ```
 
-Copy the `allegro_pkgs/` directory to the target server.
+Copy the `allegro_pkgs/` directory and the `nequip/` and `allegro/` source directories to the target server.
 
 **Step 2 — on the server without internet**, create a virtual environment and install:
 
@@ -83,10 +96,14 @@ pip install --no-index --find-links=$PKG_DIR setuptools wheel pybind11
 pip install --no-index --find-links=$PKG_DIR $PKG_DIR/*
 ```
 
-Then install Allegro-RSP from the repo:
+Install nequip, allegro, and Allegro-RSP from source:
 ```bash
-pip install -e .
+pip install -e path/to/nequip/
+pip install -e path/to/allegro/
+pip install -e path/to/Allegro-RSP/
 ```
+
+---
 
 ## Dataset Preparation
 
@@ -109,6 +126,8 @@ cd datasets/HfO2/HfO2
 python data-loss_weight.py      # generate HfO2.xyz with loss weights
 cd ../../..
 ```
+
+---
 
 ## Usage
 
@@ -202,6 +221,8 @@ pytest tests/model/test_allegro.py        # single file
 pytest tests/integration/                 # integration tests only
 ```
 
+---
+
 ## Running Full Experiments
 
 Shell scripts are provided to run the complete train + evaluate + deploy pipeline for each material. They are designed for SLURM clusters but can also be run directly.
@@ -238,6 +259,8 @@ sbatch run_trainer_modify.sh
 
 Each `run_*.sh` script handles: dataset prep → parallel training → evaluation on all test sets → deploy → post-processing (`run_nacl_test.sh` calls `plot.py`, `data_gen.py`, `get_force_constant.py`, `get_lattice_constant.py`; `run_hfo2_test.sh` calls `plot.py`, `get_phonon_HfO2.py`).
 
+---
+
 ## Key Config Parameters
 
 | Parameter | Description |
@@ -252,6 +275,8 @@ Each `run_*.sh` script handles: dataset prep → parallel training → evaluatio
 | `include_keys` | Extra fields to load from dataset (e.g. `[atomic_charges, total_charge, loss_weight]`); adding `loss_weight` automatically enables per-sample loss weighting |
 | `loss_coeffs` | Loss terms — RSP training requires `total_charge` and `stress` (e.g. `{total_energy: [10., PerAtomMSELoss], forces: 1., total_charge: 1., stress: 1.}`) |
 | `early_stopping_lower_bounds.LR` | List of 3 LR thresholds triggering stage 1→2→3 transitions |
+
+---
 
 ## Article
 
