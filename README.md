@@ -1,4 +1,4 @@
-# Allegro + Reciprocal-Space Potential (RSP)
+﻿# Allegro + Reciprocal-Space Potential (RSP)
 
 ## Introduction
 
@@ -45,11 +45,28 @@ wget https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_scatter-2.0.9-cp39-cp39
 pip install torch_scatter-2.0.9-cp39-cp39-linux_x86_64.whl
 ```
 
-**3. Install nequip and allegro**
+**3. Clone and install pinned nequip and allegro commits**
+
+Validated commits used by this repository:
+- `nequip`: `6a6110b9cf286be9d5114fa2b986dd454aa7b0cc`
+- `allegro`: `00b603867b5375adeb6ad4d556259b2bcaf74184`
 
 ```bash
-pip install -e path/to/nequip/
-pip install -e path/to/allegro/
+# clone sources
+git clone https://github.com/mir-group/nequip.git
+git clone https://github.com/mir-group/allegro.git
+
+# install nequip at pinned commit
+cd nequip
+git checkout 6a6110b9cf286be9d5114fa2b986dd454aa7b0cc
+pip install -e .
+cd ..
+
+# install allegro at pinned commit
+cd allegro
+git checkout 00b603867b5375adeb6ad4d556259b2bcaf74184
+pip install -e .
+cd ..
 ```
 
 **4. Install Allegro-RSP**
@@ -67,7 +84,7 @@ python setup.py develop
 
 ### Without Internet
 
-**Step 1 — on a machine with internet access**, download all required wheels:
+**Step 1 - on a machine with internet access**, download required wheels and clone `nequip`/`allegro` sources:
 
 ```bash
 mkdir -p allegro_pkgs && cd allegro_pkgs
@@ -77,11 +94,18 @@ pip download numpy==1.26.0 pymatgen wandb setuptools>=61.0 wheel pybind11>=2.10.
 wget https://data.pyg.org/whl/torch-1.11.0%2Bcu113/torch_scatter-2.0.9-cp39-cp39-linux_x86_64.whl
 pip download absl-py==0.10.0 adjustText ase==3.23.0 e3nn==0.5.6 grpcio markdown==2.6.11 markupsafe==2.1.1 opt_einsum_fx==0.1.4 opt-einsum phonopy pillow==11.3.0 scikit-learn tensorboard tensorboard-data-server==0.7.0 threadpoolctl==3.1.0 torch-runstats==0.2.0 torch-ema==0.3.0 werkzeug --platform manylinux2014_x86_64 --python-version 39 --only-binary=:all: --no-deps
 wget https://files.pythonhosted.org/packages/ec/f1/923d8dcf2d54d165bb8eb1f3782ba2aa58a85d7dfd8c43d0173dde836f76/calorine-3.2.tar.gz
+cd ..
+
+# clone and pin nequip/allegro commits before transfer
+git clone https://github.com/mir-group/nequip.git
+git clone https://github.com/mir-group/allegro.git
+cd nequip && git checkout 6a6110b9cf286be9d5114fa2b986dd454aa7b0cc && cd ..
+cd allegro && git checkout 00b603867b5375adeb6ad4d556259b2bcaf74184 && cd ..
 ```
 
-Copy the `allegro_pkgs/` directory and the `nequip/` and `allegro/` source directories to the target server.
+Copy the `allegro_pkgs/` directory and the `nequip/` and `allegro/` source directories (including `.git` if possible) to the target server.
 
-**Step 2 — on the server without internet**, create a virtual environment and install:
+**Step 2 鈥?on the server without internet**, create a virtual environment and install:
 
 ```bash
 module purge
@@ -96,11 +120,16 @@ pip install --no-index --find-links=$PKG_DIR setuptools wheel pybind11
 pip install --no-index --find-links=$PKG_DIR $PKG_DIR/*
 ```
 
-Install nequip, allegro, and Allegro-RSP from source:
+Install nequip, allegro, and Allegro-RSP from source (using the same pinned commits):
 ```bash
-pip install -e path/to/nequip/
-pip install -e path/to/allegro/
-pip install -e path/to/Allegro-RSP/
+cd /path/to/nequip
+pip install -e .
+
+cd /path/to/allegro
+pip install -e .
+
+cd /path/to/Allegro-RSP
+pip install -e .
 ```
 
 ---
@@ -182,7 +211,7 @@ nequip-evaluate \
   --output results/NaCl_allegro_test.xyz \
   --log results/NaCl_allegro_evaluate.log
 
-# RSP model (1-step or 3-step) — add --output-fields for RSP quantities
+# RSP model (1-step or 3-step) 鈥?add --output-fields for RSP quantities
 nequip-evaluate \
   --train-dir results/reciprocal/NaCl/NaCl\(3-step\) \
   --dataset-config configs/NaCl/test/reciprocal_test.yaml \
@@ -227,7 +256,7 @@ pytest tests/integration/                 # integration tests only
 
 Shell scripts are provided to run the complete train + evaluate + deploy pipeline for each material. They are designed for SLURM clusters but can also be run directly.
 
-**NaCl** — trains all 3 model variants in parallel on 3 GPUs:
+**NaCl** 鈥?trains all 3 model variants in parallel on 3 GPUs:
 
 ```bash
 # Submit via SLURM
@@ -237,7 +266,7 @@ sbatch run_nacl.sh
 bash task_nacl.sh
 ```
 
-**HfO2** — same structure:
+**HfO2** 鈥?same structure:
 
 ```bash
 sbatch run_hfo2.sh
@@ -257,7 +286,7 @@ sbatch run_hfo2_test.sh
 sbatch run_trainer_modify.sh
 ```
 
-Each `run_*.sh` script handles: dataset prep → parallel training → evaluation on all test sets → deploy → post-processing (`run_nacl_test.sh` calls `plot.py`, `data_gen.py`, `get_force_constant.py`, `get_lattice_constant.py`; `run_hfo2_test.sh` calls `plot.py`, `get_phonon_HfO2.py`).
+Each `run_*.sh` script handles: dataset prep 鈫?parallel training 鈫?evaluation on all test sets 鈫?deploy 鈫?post-processing (`run_nacl_test.sh` calls `plot.py`, `data_gen.py`, `get_force_constant.py`, `get_lattice_constant.py`; `run_hfo2_test.sh` calls `plot.py`, `get_phonon_HfO2.py`).
 
 ---
 
@@ -265,7 +294,7 @@ Each `run_*.sh` script handles: dataset prep → parallel training → evaluatio
 
 | Parameter | Description |
 |-----------|-------------|
-| `r_max` | Real-space cutoff (Å) |
+| `r_max` | Real-space cutoff (脜) |
 | `k_max` | Reciprocal-space cutoff |
 | `eta` | Ewald summation smearing parameter |
 | `start_stage` | Training stage (1=3-step, 3=1-step) |
@@ -273,8 +302,8 @@ Each `run_*.sh` script handles: dataset prep → parallel training → evaluatio
 | `charge_mlp_latent_dimensions` | ChargeMLP hidden dims |
 | `model_input_fields` | Declare extra per-atom fields fed to the model (e.g. `atomic_charges: 1x0e`, `total_charge: 1x0e`, `loss_weight: 1x0e`) |
 | `include_keys` | Extra fields to load from dataset (e.g. `[atomic_charges, total_charge, loss_weight]`); adding `loss_weight` automatically enables per-sample loss weighting |
-| `loss_coeffs` | Loss terms — RSP training requires `total_charge` and `stress` (e.g. `{total_energy: [10., PerAtomMSELoss], forces: 1., total_charge: 1., stress: 1.}`) |
-| `early_stopping_lower_bounds.LR` | List of 3 LR thresholds triggering stage 1→2→3 transitions |
+| `loss_coeffs` | Loss terms 鈥?RSP training requires `total_charge` and `stress` (e.g. `{total_energy: [10., PerAtomMSELoss], forces: 1., total_charge: 1., stress: 1.}`) |
+| `early_stopping_lower_bounds.LR` | List of 3 LR thresholds triggering stage 1鈫?鈫? transitions |
 
 ---
 
