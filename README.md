@@ -105,7 +105,7 @@ cd allegro && git checkout 00b603867b5375adeb6ad4d556259b2bcaf74184 && cd ..
 
 Copy the `allegro_pkgs/` directory and the `nequip/` and `allegro/` source directories (including `.git` if possible) to the target server.
 
-**Step 2 鈥?on the server without internet**, create a virtual environment and install:
+**Step 2 - on the server without internet**, create a virtual environment and install:
 
 ```bash
 module purge
@@ -211,7 +211,7 @@ nequip-evaluate \
   --output results/NaCl_allegro_test.xyz \
   --log results/NaCl_allegro_evaluate.log
 
-# RSP model (1-step or 3-step) 鈥?add --output-fields for RSP quantities
+# RSP model (1-step or 3-step) - add --output-fields for RSP quantities
 nequip-evaluate \
   --train-dir results/reciprocal/NaCl/NaCl\(3-step\) \
   --dataset-config configs/NaCl/test/reciprocal_test.yaml \
@@ -256,7 +256,7 @@ pytest tests/integration/                 # integration tests only
 
 Shell scripts are provided to run the complete train + evaluate + deploy pipeline for each material. They are designed for SLURM clusters but can also be run directly.
 
-**NaCl** 鈥?trains all 3 model variants in parallel on 3 GPUs:
+**NaCl** - trains all 3 model variants in parallel on 3 GPUs:
 
 ```bash
 # Submit via SLURM
@@ -266,7 +266,7 @@ sbatch run_nacl.sh
 bash task_nacl.sh
 ```
 
-**HfO2** 鈥?same structure:
+**HfO2** - same structure:
 
 ```bash
 sbatch run_hfo2.sh
@@ -286,7 +286,7 @@ sbatch run_hfo2_test.sh
 sbatch run_trainer_modify.sh
 ```
 
-Each `run_*.sh` script handles: dataset prep 鈫?parallel training 鈫?evaluation on all test sets 鈫?deploy 鈫?post-processing (`run_nacl_test.sh` calls `plot.py`, `data_gen.py`, `get_force_constant.py`, `get_lattice_constant.py`; `run_hfo2_test.sh` calls `plot.py`, `get_phonon_HfO2.py`).
+Each `run_*.sh` script handles: dataset prep -> parallel training -> evaluation on all test sets -> deploy -> post-processing (`run_nacl_test.sh` calls `plot.py`, `data_gen.py`, `get_force_constant.py`, `get_lattice_constant.py`; `run_hfo2_test.sh` calls `plot.py`, `get_phonon_HfO2.py`).
 
 ---
 
@@ -294,7 +294,7 @@ Each `run_*.sh` script handles: dataset prep 鈫?parallel training 鈫?evaluatio
 
 | Parameter | Description |
 |-----------|-------------|
-| `r_max` | Real-space cutoff (脜) |
+| `r_max` | Real-space cutoff (Angstrom) |
 | `k_max` | Reciprocal-space cutoff |
 | `eta` | Ewald summation smearing parameter |
 | `start_stage` | Training stage (1=3-step, 3=1-step) |
@@ -302,8 +302,8 @@ Each `run_*.sh` script handles: dataset prep 鈫?parallel training 鈫?evaluatio
 | `charge_mlp_latent_dimensions` | ChargeMLP hidden dims |
 | `model_input_fields` | Declare extra per-atom fields fed to the model (e.g. `atomic_charges: 1x0e`, `total_charge: 1x0e`, `loss_weight: 1x0e`) |
 | `include_keys` | Extra fields to load from dataset (e.g. `[atomic_charges, total_charge, loss_weight]`); adding `loss_weight` automatically enables per-sample loss weighting |
-| `loss_coeffs` | Loss terms 鈥?RSP training requires `total_charge` and `stress` (e.g. `{total_energy: [10., PerAtomMSELoss], forces: 1., total_charge: 1., stress: 1.}`) |
-| `early_stopping_lower_bounds.LR` | List of 3 LR thresholds triggering stage 1鈫?鈫? transitions |
+| `loss_coeffs` | Loss terms - RSP training requires `total_charge` and `stress` (e.g. `{total_energy: [10., PerAtomMSELoss], forces: 1., total_charge: 1., stress: 1.}`) |
+| `early_stopping_lower_bounds.LR` | List of 3 LR thresholds triggering stage 1 -> 2 -> 3 transitions |
 
 ---
 
