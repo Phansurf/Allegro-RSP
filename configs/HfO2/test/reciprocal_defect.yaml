@@ -14,5 +14,4 @@ chemical_symbol_to_type:
 
 # Extra inputs from dataset.
 include_keys:
-  - atomic_charges
   - total_charge

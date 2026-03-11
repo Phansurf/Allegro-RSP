@@ -67,11 +67,26 @@ class ChargeMLP(GraphModuleMixin, torch.nn.Module):
             mlp_latent_dimensions=charge_mlp_latent_dimensions,
         )
 
-        if self.stage != 1:
-            self.irreps_out.update({_keys.ATOMIC_CHARGES: o3.Irreps("1x0e")})
+        # Always declare output irreps for ATOMIC_CHARGES and TOTAL_CHARGE
+        # so SequentialGraphNetwork type-checking works regardless of stage.
+        self.irreps_out.update({_keys.ATOMIC_CHARGES: o3.Irreps("1x0e")})
+        self.irreps_out.update({_keys.TOTAL_CHARGE: o3.Irreps("1x0e")})
 
     def forward(self, data: AtomicDataDict.Type) -> AtomicDataDict.Type:
         if self.stage == 1:
+            # Stage 1: ChargeMLP is frozen, no charge prediction.
+            # Distribute total_charge (from dataset) uniformly across atoms
+            # to create dummy atomic_charges for downstream layers.
+            data = AtomicDataDict.with_batch(data)
+            batch = data[AtomicDataDict.BATCH_KEY]
+            total_charge = data[_keys.TOTAL_CHARGE]  # (batch_size, 1)
+            num_atoms_per_batch = torch.bincount(batch)
+            atomic_charges = torch.repeat_interleave(
+                total_charge / num_atoms_per_batch.unsqueeze(-1),
+                num_atoms_per_batch,
+                dim=0,
+            )  # (total_atoms, 1)
+            data[_keys.ATOMIC_CHARGES] = atomic_charges
             return data
         else:
             data = AtomicDataDict.with_batch(data)

@@ -20,7 +20,6 @@ model_builders:
 
 # extra model input fields
 model_input_fields:
-  atomic_charges: 1x0e
   total_charge: 1x0e
   loss_weight: 1x0e
 
@@ -96,7 +95,6 @@ chemical_symbol_to_type:
 
 # Extra inputs from dataset.
 include_keys:
-  - atomic_charges
   - total_charge
   - loss_weight
 

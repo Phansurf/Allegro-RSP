@@ -47,8 +47,6 @@ def _ase_dataset_reader(
     datas = []
     # stream them from ase too using iread
     for i, atoms in enumerate(ase.io.iread(**ase_kwargs, index=index, parallel=False)):
-        if 'atomic_charges' in atoms.arrays:
-            atoms.arrays['atomic_charges'] = atoms.arrays['atomic_charges'].reshape(-1, 1)
         global_index = rank + (world_size * i)
         datas.append(
             (
