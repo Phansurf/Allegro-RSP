@@ -59,20 +59,20 @@ git clone https://github.com/mir-group/allegro.git
 # install nequip at pinned commit
 cd nequip
 git checkout 6a6110b9cf286be9d5114fa2b986dd454aa7b0cc
-pip install -e .
+pip install .
 cd ..
 
 # install allegro at pinned commit
 cd allegro
 git checkout 00b603867b5375adeb6ad4d556259b2bcaf74184
-pip install -e .
+pip install .
 cd ..
 ```
 
 **4. Install Allegro-RSP**
 
 ```bash
-pip install -e . --no-build-isolation
+pip install . --no-build-isolation
 ```
 
 This applies the RSP patches to the installed `nequip` and `allegro` packages via `setup.py develop`. The `nequip-train`, `nequip-evaluate`, `nequip-benchmark`, and `nequip-deploy` CLI commands are provided by the installed `nequip` package.
@@ -123,13 +123,13 @@ pip install --no-index --find-links=$PKG_DIR $PKG_DIR/*
 Install nequip, allegro, and Allegro-RSP from source (using the same pinned commits):
 ```bash
 cd /path/to/nequip
-pip install -e .
+pip install .
 
 cd /path/to/allegro
-pip install -e .
+pip install .
 
 cd /path/to/Allegro-RSP
-pip install -e . --no-build-isolation
+pip install . --no-build-isolation
 ```
 
 ---
