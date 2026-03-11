@@ -72,7 +72,7 @@ cd ..
 **4. Install Allegro-RSP**
 
 ```bash
-pip install -e .
+pip install -e . --no-build-isolation
 ```
 
 This applies the RSP patches to the installed `nequip` and `allegro` packages via `setup.py develop`. The `nequip-train`, `nequip-evaluate`, `nequip-benchmark`, and `nequip-deploy` CLI commands are provided by the installed `nequip` package.
@@ -129,7 +129,7 @@ cd /path/to/allegro
 pip install -e .
 
 cd /path/to/Allegro-RSP
-pip install -e .
+pip install -e . --no-build-isolation
 ```
 
 ---

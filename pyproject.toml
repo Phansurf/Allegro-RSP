@@ -15,7 +15,7 @@ authors = [
 dependencies = []
 
 [tool.setuptools.packages.find]
-# No Python packages to install — this project only patches nequip and allegro.
+# No Python packages to install — setup.py patches installed nequip/allegro via file copy.
 include = []
 
 [tool.ruff]
